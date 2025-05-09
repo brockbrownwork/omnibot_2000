@@ -22,6 +22,8 @@
   https://www.arduino.cc/en/Tutorial/BuiltInExamples/Blink
 */
 
+//sgrtok
+
 
 // STARTS AT PIN 9
 
@@ -42,7 +44,7 @@ void setup() {
   Serial.println("Started!");
   digitalWrite(LEFT_MOTOR_PWM_PIN, dutyCycle);
   digitalWrite(RIGHT_MOTOR_PWM_PIN, dutyCycle);
-  delay(10000); 
+  // delay(10000); 
 }
 
 void forward(int duration) {
