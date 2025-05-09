@@ -56,7 +56,7 @@ void forward(int duration) {
 }
 
 void backward(int duration) {
-  Serial.println("Moving forward...");
+  Serial.println("Moving backward...");
   digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
   digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
   delay(duration);
@@ -66,7 +66,7 @@ void backward(int duration) {
 }
 
 void turnRight(int duration) {
-  Serial.println("Moving forward...");
+  Serial.println("Turning right...");
   digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
   digitalWrite(LEFT_MOTOR_FORWARD_PIN, HIGH);
   delay(duration);
@@ -76,7 +76,7 @@ void turnRight(int duration) {
 }
 
 void turnLeft(int duration) {
-  Serial.println("Moving forward...");
+  Serial.println("Turning left...");
   digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
   digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
   delay(duration);
@@ -85,21 +85,36 @@ void turnLeft(int duration) {
   delay(1000);
 }
 
+const int timeToRun = 5000;
 // the loop function runs over and over again forever
 void loop() {
-    for (int motorPin = 9; motorPin <= 12; motorPin++) {
-      forward(5000);
-      backward(5000);
-      turnRight(5000);
-      turnLeft(5000);
-      Serial.print("Messing with pin: ");
-      Serial.println(motorPin);
-      digitalWrite(motorPin, HIGH);   // turn the LED on (HIGH is the voltage level)
-      digitalWrite(LED_BUILTIN, HIGH);
-      delay(1000);                       // wait for a second
-      digitalWrite(motorPin, LOW);
-      digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-      delay(1000);                       // wait for a second
+  // Check if data is available to read from the serial port
+  if (Serial.available() > 0) {
+    // Read the incoming byte:
+    char incomingByte = Serial.read();
+
+    // Print the received byte to the serial monitor
+    Serial.print("Received: ");
+    Serial.println(incomingByte);
+
+    // Check the received byte and call the corresponding function
+    switch (incomingByte) {
+      case 'f':
+        forward(timeToRun);
+        break;
+      case 'b':
+        backward(timeToRun);
+        break;
+      case 'l':
+        turnLeft(timeToRun);
+        break;
+      case 'r':
+        turnRight(timeToRun);
+        break;
+      default:
+        // Handle unknown commands
+        Serial.println("Unknown command. Use f, b, l, or r.");
+        break;
     }
-    delay(3000);
+  }
 }
