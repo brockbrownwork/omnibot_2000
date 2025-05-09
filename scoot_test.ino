@@ -25,10 +25,11 @@
 
 // STARTS AT PIN 9
 
-const int LEFT_MOTOR_FORWARD_PIN = 9;
-const int LEFT_MOTOR_BACKWARD_PIN = 10;
-const int RIGHT_MOTOR_FORWARD_PIN = 11;
-const int RIGHT_MOTOR_BACKWARD_PIN = 12;
+const int RIGHT_MOTOR_BACKWARD_PIN = 9;
+const int RIGHT_MOTOR_FORWARD_PIN = 10;
+const int LEFT_MOTOR_FORWARD_PIN = 11;
+const int LEFT_MOTOR_BACKWARD_PIN = 12;
+
 const int LEFT_MOTOR_PWM_PIN = 13;
 const int RIGHT_MOTOR_PWM_PIN = 8;
 
@@ -51,17 +52,51 @@ void forward(int duration) {
   delay(duration);
   digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
   digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
+  delay(1000);
+}
+
+void backward(int duration) {
+  Serial.println("Moving forward...");
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
+  delay(duration);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, LOW);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, LOW);
+  delay(1000);
+}
+
+void turnRight(int duration) {
+  Serial.println("Moving forward...");
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, HIGH);
+  delay(duration);
+  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, LOW);
+  digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
+  delay(1000);
+}
+
+void turnLeft(int duration) {
+  Serial.println("Moving forward...");
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
+  delay(duration);
+  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, LOW);
+  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
+  delay(1000);
 }
 
 // the loop function runs over and over again forever
 void loop() {
-    for (int motorPin = LEFT_MOTOR_FORWARD_PIN; motorPin <= RIGHT_MOTOR_BACKWARD_PIN; motorPin++) {
+    for (int motorPin = 9; motorPin <= 12; motorPin++) {
       forward(5000);
+      backward(5000);
+      turnRight(5000);
+      turnLeft(5000);
       Serial.print("Messing with pin: ");
       Serial.println(motorPin);
       digitalWrite(motorPin, HIGH);   // turn the LED on (HIGH is the voltage level)
       digitalWrite(LED_BUILTIN, HIGH);
-      delay(5000);                       // wait for a second
+      delay(1000);                       // wait for a second
       digitalWrite(motorPin, LOW);
       digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
       delay(1000);                       // wait for a second
