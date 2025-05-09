@@ -22,7 +22,7 @@
   https://www.arduino.cc/en/Tutorial/BuiltInExamples/Blink
 */
 
-//sgrtok
+//strtok = string tokenize
 
 
 // STARTS AT PIN 9
