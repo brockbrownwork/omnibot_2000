@@ -102,12 +102,15 @@ try:
                     if value == 1: # if the button is pressed...
                         print(f"{button} pressed\n")
                         if button == "UP":
-                            send_command(ser, "FOO")
+                            # send_command(ser, "FOO")
+                            send_command(ser, "on")
                     elif value == -1: # if the button was released...
                         if not directional_button_pressed_before[button]:
                             # ignore the first "button released" signal, it's false
                             directional_button_pressed_before[button] = True
                         else:
+                            if button == "UP":
+                                send_command(ser, "off")
                             print(f"{button} released\n")
                 else:
                     pass
