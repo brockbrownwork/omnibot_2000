@@ -125,6 +125,7 @@ void setup()
  
   // Set up Serial Monitor
   Serial.begin(115200);
+  Serial.setTimeout(10); // fix the bullshit with the laggy serial response
   delay(1000);
  
   // Set ESP32 in STA mode to begin with
