@@ -101,16 +101,24 @@ try:
                     button = axis_to_direction[event.axis]
                     if value == 1: # if the button is pressed...
                         print(f"{button} pressed\n")
+                        # send_command(ser, "on")
                         if button == "UP":
-                            # send_command(ser, "FOO")
-                            send_command(ser, "on")
+                            send_command(ser, "forward")
+                            # pass
+                        elif button == "DOWN":
+                            send_command(ser, "backward")
+                        elif button == "LEFT":
+                            send_command(ser, "left")
+                        elif button == "RIGHT":
+                            send_command(ser, "right")
                     elif value == -1: # if the button was released...
-                        if not directional_button_pressed_before[button]:
+                        if not directional_button_pressed_before.get(button, False):
                             # ignore the first "button released" signal, it's false
                             directional_button_pressed_before[button] = True
                         else:
-                            if button == "UP":
-                                send_command(ser, "off")
+                            if button in ["UP", "DOWN", "LEFT", "RIGHT"]:
+                                send_command(ser, "stop") # Sending "off" for any directional button release
+                                # send_command(ser, "off")
                             print(f"{button} released\n")
                 else:
                     pass
