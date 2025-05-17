@@ -29,10 +29,11 @@ void formatMacAddress(const uint8_t *macAddr, char *buffer, int maxLength)
 
  
 // Define your motor control pins here
-const int RIGHT_MOTOR_FORWARD_PIN = 4;  // Replace with your actual pin number
-const int RIGHT_MOTOR_BACKWARD_PIN = 5; // Replace with your actual pin number
-const int LEFT_MOTOR_FORWARD_PIN = 6;   // Replace with your actual pin number
-const int LEFT_MOTOR_BACKWARD_PIN = 7;  // Replace with your actual pin number
+const int LEFT_MOTOR_FORWARD_PIN = 13;   // Replace with your actual pin number
+const int LEFT_MOTOR_BACKWARD_PIN = 12;  // Replace with your actual pin number
+const int RIGHT_MOTOR_FORWARD_PIN = 14;  // Replace with your actual pin number
+const int RIGHT_MOTOR_BACKWARD_PIN = 27; // Replace with your actual pin number
+
 
 // Function to stop all motors
 void stopMotors() {
@@ -103,7 +104,7 @@ void receiveCallback(const esp_now_recv_info_t *esp_now_info, const uint8_t *dat
   // Check the received broadcast and control motors
   if (strcmp("forward", buffer) == 0) {
     moveForward();
-  } else if (strcmp("back", buffer) == 0) {
+  } else if (strcmp("backward", buffer) == 0) {
     moveBackward();
   } else if (strcmp("right", buffer) == 0) {
     turnRight();
