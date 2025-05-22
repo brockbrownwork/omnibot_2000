@@ -34,6 +34,9 @@ const int LEFT_MOTOR_BACKWARD_PIN = 12;  // Replace with your actual pin number
 const int RIGHT_MOTOR_FORWARD_PIN = 14;  // Replace with your actual pin number
 const int RIGHT_MOTOR_BACKWARD_PIN = 27; // Replace with your actual pin number
 
+// passive buzzer
+const int BUZZER_PIN = 22;
+
 
 // Function to stop all motors
 void stopMotors() {
@@ -77,6 +80,18 @@ void turnLeft() {
   digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
 }
 
+// Function to start the beep
+void beepOn() {
+  // start the tone on the buzzer pin
+  digitalWrite(BUZZER_PIN, HIGH);
+}
+
+// Function to stop the beep
+void beepOff() {
+  // Stop the tone playing on the buzzer pin
+  digitalWrite(BUZZER_PIN, LOW);
+}
+
 
 // Callback function executed when data is received via ESP-NOW
 void receiveCallback(const esp_now_recv_info_t *esp_now_info, const uint8_t *data, int dataLen)
@@ -110,9 +125,13 @@ void receiveCallback(const esp_now_recv_info_t *esp_now_info, const uint8_t *dat
     turnRight();
   } else if (strcmp("left", buffer) == 0) {
     turnLeft();
-  } else if (strcmp("stop", buffer) == 0) { // Added a stop command for convenience
+  } else if (strcmp("stop", buffer) == 0) {
     stopMotors();
-  }
+  } else if (strcmp("beep on", buffer) == 0) {
+    beepOn();
+  } else if (strcmp("beep off", buffer) == 0) {
+    beepOff();
+  } 
   // You can add other commands here if needed, similar to the original ledOn/off
   // else if (strcmp("on", buffer) == 0)
   // {
@@ -190,7 +209,8 @@ void setup()
   // Set up Serial Monitor
   Serial.begin(115200);
   delay(1000);
- 
+
+  
   // Set ESP32 in STA mode to begin with
   WiFi.mode(WIFI_STA);
   Serial.println("ESP-NOW Broadcast Demo");
@@ -222,15 +242,20 @@ void setup()
   // LED Output
   pinMode(STATUS_LED, OUTPUT);
 
+  // Buzzer
+  pinMode(BUZZER_PIN, OUTPUT);
+  // Test the beep
+  //beepOn();
+  //delay(500);
+  //beepOff();
+ 
+
   // Start your engines
   pinMode(RIGHT_MOTOR_FORWARD_PIN, OUTPUT);
   pinMode(RIGHT_MOTOR_BACKWARD_PIN, OUTPUT);
   pinMode(LEFT_MOTOR_FORWARD_PIN, OUTPUT);
   pinMode(LEFT_MOTOR_BACKWARD_PIN, OUTPUT);
-  digitalWrite(RIGHT_MOTOR_FORWARD_PIN, LOW);
-  digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, LOW);
-  digitalWrite(LEFT_MOTOR_FORWARD_PIN, LOW);
-  digitalWrite(LEFT_MOTOR_BACKWARD_PIN, LOW);
+  stopMotors();
 
 }
  

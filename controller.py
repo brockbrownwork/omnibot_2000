@@ -87,12 +87,18 @@ try:
                 if event.button in button_number_to_name:
                     button = button_number_to_name[event.button]
                     print(f"{button} pressed\n")
+                    if button == "B":
+                        # beep
+                        send_command(ser, "beep on")
                 else:
                     print(f"Button {event.button} pressed\n")
             elif event.type == pygame.JOYBUTTONUP:
                 if event.button in button_number_to_name:
                     button = button_number_to_name[event.button]
                     print(f"{button} released\n")
+                    if button == "B":
+                        # beep off
+                        send_command(ser, "beep off")
                 else:
                     print(f"Button {event.button} released\n")
             elif event.type == pygame.JOYAXISMOTION:
