@@ -29,11 +29,10 @@ void formatMacAddress(const uint8_t *macAddr, char *buffer, int maxLength)
 
  
 // Define your motor control pins here
-const int LEFT_MOTOR_FORWARD_PIN = 13;   // Replace with your actual pin number
-const int LEFT_MOTOR_BACKWARD_PIN = 12;  // Replace with your actual pin number
-const int RIGHT_MOTOR_FORWARD_PIN = 14;  // Replace with your actual pin number
-const int RIGHT_MOTOR_BACKWARD_PIN = 27; // Replace with your actual pin number
-
+const int LEFT_MOTOR_FORWARD_PIN = 13;
+const int LEFT_MOTOR_BACKWARD_PIN = 12;
+const int RIGHT_MOTOR_FORWARD_PIN = 27;
+const int RIGHT_MOTOR_BACKWARD_PIN = 26;
 // passive buzzer
 const int BUZZER_PIN = 22;
 
@@ -82,14 +81,14 @@ void turnLeft() {
 
 // Function to start the beep
 void beepOn() {
-  // start the tone on the buzzer pin
-  digitalWrite(BUZZER_PIN, HIGH);
+  // Start the tone on the buzzer pin at 220Hz
+  tone(BUZZER_PIN, 220);
 }
 
 // Function to stop the beep
 void beepOff() {
   // Stop the tone playing on the buzzer pin
-  digitalWrite(BUZZER_PIN, LOW);
+  noTone(BUZZER_PIN);
 }
 
 
