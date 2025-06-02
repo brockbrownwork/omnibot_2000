@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Light Control (Instant UI Update)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .light-button {
+            padding: 20px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .light-button.on {
+            background-color: #4CAF50; /* Green for ON */
+        }
+        .light-button.off {
+            background-color: #f44336; /* Red for OFF */
+        }
+        .light-button:hover {
+            opacity: 0.9;
+        }
+        .status-message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <button id="lightToggleButton" class="light-button off">Turn On Light</button>
+        <p id="statusMessage" class="status-message"></p>
+    </div>
+
+    <script>
+        const lightToggleButton = document.getElementById('lightToggleButton');
+        const statusMessage = document.getElementById('statusMessage');
+        const lightOffURL = 'http://192.168.0.109/L';
+        const lightOnURL = 'http://192.168.0.109/H';
+
+        // Initialize light state (assuming off initially)
+        let isLightOn = false; 
+
+        // Function to update button appearance and text
+        function updateButtonState() {
+            if (isLightOn) {
+                lightToggleButton.classList.remove('off');
+                lightToggleButton.classList.add('on');
+                lightToggleButton.textContent = 'Turn Off Light';
+                statusMessage.textContent = 'Light is now ON (request sent)';
+            } else {
+                lightToggleButton.classList.remove('on');
+                lightToggleButton.classList.add('off');
+                lightToggleButton.textContent = 'Turn On Light';
+                statusMessage.textContent = 'Light is now OFF (request sent)';
+            }
+        }
+
+        // Function to send GET request (without checking response.ok)
+        function sendLightRequest(url) {
+            fetch(url)
+                .then(response => {
+                    // You could still log the response here if you want to see it in the console
+                    console.log(`Request to ${url} sent. Response status: ${response.status}`);
+                })
+                .catch(error => {
+                    console.error(`Error sending request to ${url}:`, error);
+                    statusMessage.textContent = `Error: Network issue sending request.`;
+                });
+        }
+
+        // Event listener for button click
+        lightToggleButton.addEventListener('click', () => {
+            // Toggle the state immediately for responsive UI
+            isLightOn = !isLightOn; 
+            updateButtonState();
+
+            // Send the request based on the new state
+            if (isLightOn) {
+                sendLightRequest(lightOnURL);
+            } else {
+                sendLightRequest(lightOffURL);
+            }
+        });
+
+        // Initial update when the page loads
+        updateButtonState();
+
+    </script>
+</body>
+</html>
