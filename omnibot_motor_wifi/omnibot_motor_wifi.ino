@@ -37,9 +37,29 @@ const int LEFT_MOTOR_FORWARD_PIN = 13;
 const int LEFT_MOTOR_BACKWARD_PIN = 12;
 const int RIGHT_MOTOR_FORWARD_PIN = 27;
 const int RIGHT_MOTOR_BACKWARD_PIN = 26;
+const int LEFT_MOTOR_PWM_PIN = 28;
+const int RIGHT_MOTOR_PWM_PIN = 29;
+
+// PWM settings
+const int freq = 5000; // PWM frequency in Hz (e.g., 5 kHz)
+const int resolution = 8; // PWM resolution (8-bit gives 0-255 range, like analogWrite)
+
+// LEDC channels
+const int leftMotorChannel = 0;
+const int rightMotorChannel = 1;
+
+// Motor speed
+int motorSpeed = 255;
+
 // passive buzzer
 const int BUZZER_PIN = 22;
 
+// Function to change the motor speed
+void changeMotorSpeed(int speed) {
+  motorSpeed = speed;
+  ledcWrite(leftMotorChannel, speed);
+  ledcWrite(rightMotorChannel, speed);
+}
 
 // Function to stop all motors
 void stopMotors() {
@@ -117,6 +137,17 @@ void setup() {
   pinMode(LEFT_MOTOR_FORWARD_PIN, OUTPUT);
   pinMode(LEFT_MOTOR_BACKWARD_PIN, OUTPUT);
   stopMotors();
+
+  // Configure LEDC for left motor
+  ledcAttachPin(LEFT_MOTOR_PWM_PIN, leftMotorChannel);
+  ledcSetup(leftMotorChannel, freq, resolution);
+
+  // Configure LEDC for right motor
+  ledcAttachPin(RIGHT_MOTOR_PWM_PIN, rightMotorChannel);
+  ledcSetup(rightMotorChannel, freq, resolution);
+
+  // Set the duty cycle to 1
+  changeMotorSpeed(255);
 }
 
 void loop() {
@@ -172,6 +203,18 @@ void loop() {
         }
         if (currentLine.endsWith("GET /stopMotors")) {
           stopMotors();
+        }
+        if (currentLine.indexOf("GET /speed/") != -1) {
+          // This handles direct links like /speed/128
+          int speedIndex = currentLine.indexOf("/speed/");
+          String speedString = currentLine.substring(speedIndex + 7); // "/speed/" has 7 characters
+          speedString = speedString.substring(0, speedString.indexOf(' ')); // Get the value before the next space
+          int speed = speedString.toInt();
+          // Constrain speed to be between 0 and 255
+          speed = constrain(speed, 0, 255);
+          changeMotorSpeed(speed);
+          Serial.print("Setting motor speed to: ");
+          Serial.println(speed);
         }
       }
     }
