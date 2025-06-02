@@ -1,28 +1,13 @@
 /*
- WiFi Web Server LED Blink
+ Wifi Robot Motor Control
 
- A simple web server that lets you blink an LED via the web.
- This sketch will print the IP address of your WiFi Shield (once connected)
- to the Serial monitor. From there, you can open that address in a web browser
- to turn on and off the LED on pin 5.
+ This sketch is used to control the motors of the robot via WiFi.
 
- If the IP address of your shield is yourAddress:
- http://yourAddress/H turns the LED on
- http://yourAddress/L turns it off
+ The robot is controlled by a ESP32 board.
 
- This example is written for a network using WPA2 encryption. For insecure
- WEP or WPA, change the Wifi.begin() call and use Wifi.setMinSecurity() accordingly.
+ The robot has 2 motors, 1 on the left and 1 on the right.
 
- Circuit:
- * WiFi shield attached
- * LED attached to pin 5
-
- created for arduino 25 Nov 2012
- by Tom Igoe
-
-ported for sparkfun esp32
-31.01.2017 by Jan Hendrik Berlin
-
+ The motors are controlled by a L298N motor driver.
  */
 
 #include <WiFi.h>
