@@ -57,7 +57,7 @@ void stopMotors() {
 
 // Function to move the robot forward
 void moveForward() {
-  Serial.println("Moving Forward");
+  Serial.println("\nMoving Forward");
   stopMotors(); // Stop any previous movement
   digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
   digitalWrite(LEFT_MOTOR_FORWARD_PIN, HIGH);
@@ -65,7 +65,7 @@ void moveForward() {
 
 // Function to move the robot backward
 void moveBackward() {
-  Serial.println("Moving Backward");
+  Serial.println("\nMoving Backward");
   stopMotors(); // Stop any previous movement
   digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
   digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
@@ -74,7 +74,7 @@ void moveBackward() {
 // Function to turn the robot right
 // Right motor backward, Left motor forward
 void turnRight() {
-  Serial.println("Turning Right");
+  Serial.println("\nTurning Right");
   stopMotors(); // Stop any previous movement
   digitalWrite(RIGHT_MOTOR_BACKWARD_PIN, HIGH);
   digitalWrite(LEFT_MOTOR_FORWARD_PIN, HIGH);
@@ -83,7 +83,7 @@ void turnRight() {
 // Function to turn the robot left
 // Left motor backward, Right motor forward
 void turnLeft() {
-  Serial.println("Turning Left");
+  Serial.println("\nTurning Left");
   stopMotors(); // Stop any previous movement
   digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
   digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
@@ -122,18 +122,25 @@ void setup() {
   pinMode(RIGHT_MOTOR_BACKWARD_PIN, OUTPUT);
   pinMode(LEFT_MOTOR_FORWARD_PIN, OUTPUT);
   pinMode(LEFT_MOTOR_BACKWARD_PIN, OUTPUT);
+  pinMode(RIGHT_MOTOR_PWM_PIN, OUTPUT);
+  pinMode(LEFT_MOTOR_PWM_PIN, OUTPUT);
   stopMotors();
 
-  // Configure LEDC for left motor
-  ledcAttachPin(LEFT_MOTOR_PWM_PIN, leftMotorChannel);
-  ledcSetup(leftMotorChannel, freq, resolution);
+  // // Configure LEDC for left motor
+  // ledcAttach(LEFT_MOTOR_PWM_PIN, freq, resolution);
+  // ledcAttachChannel(LEFT_MOTOR_PWM_PIN, freq, resolution, leftMotorChannel);
 
-  // Configure LEDC for right motor
-  ledcAttachPin(RIGHT_MOTOR_PWM_PIN, rightMotorChannel);
-  ledcSetup(rightMotorChannel, freq, resolution);
+  // // Configure LEDC for right motor
+  // ledcAttach(RIGHT_MOTOR_PWM_PIN, freq, resolution);
+  // ledcAttachChannel(RIGHT_MOTOR_PWM_PIN, freq, resolution, rightMotorChannel);
 
-  // Set the duty cycle to 1
-  changeMotorSpeed(255);
+  // // Set the duty cycle to 1
+  // changeMotorSpeed(255);
+
+  // set the pwm pins to high for now until we figure out what's up with that
+  digitalWrite(LEFT_MOTOR_PWM_PIN, HIGH);
+  digitalWrite(RIGHT_MOTOR_PWM_PIN, HIGH);
+
 }
 
 void loop() {
@@ -157,11 +164,13 @@ void loop() {
             client.println("Content-type:text/html");
             client.println();
 
-            client.print("<h3>Click <a href=\"/moveForward\">here</a> to move the robot forward.</h3>");
-            client.print("<h3>Click <a href=\"/moveBackward\">here</a> to move the robot backward.</h3>");
-            client.print("<h3>Click <a href=\"/turnLeft\">here</a> to turn the robot left.</h3>");
-            client.print("<h3>Click <a href=\"/turnRight\">here</a> to turn the robot right.</h3>");
-            client.print("<h3>Click <a href=\"/stopMotors\">here</a> to stop all motors.</h3>");
+            client.print("<center>");
+            client.print("  <p style=\"font-size: 15vw;\"><a href=\"/turnLeft\">LEFT</a></p>");
+            client.print("  <p style=\"font-size: 15vw;\"><a href=\"/turnRight\">RIGHT</a></p>");
+            client.print("  <p style=\"font-size: 15vw;\"><a href=\"/moveForward\">FORWARD</a></p>");
+            client.print("  <p style=\"font-size: 15vw;\"><a href=\"/moveBackward\">BACKWARD</a></p>");
+            client.print("  <p style=\"font-size: 15vw;\"><a href=\"/stopMotors\">STOP</a></p>");
+            client.print("</center>");
 
             // The HTTP response ends with another blank line:
             client.println();

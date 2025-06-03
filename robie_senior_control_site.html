@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Remote Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none; /* Prevents pull-to-refresh on mobile */
+        }
+        .control-button {
+            @apply w-20 h-20 sm:w-24 sm:h-24 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-bold rounded-lg shadow-md flex items-center justify-center text-lg transition-all select-none;
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+        }
+        .control-button-active {
+            @apply bg-blue-700 scale-95;
+        }
+        #btnCenter {
+            @apply w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center text-gray-400;
+        }
+        /* Custom styles for input field */
+        .ip-input {
+            @apply w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4 text-gray-800">
+
+    <div class="w-full max-w-md p-6 bg-white rounded-xl shadow-xl text-center">
+        <h1 class="text-2xl sm:text-3xl font-bold mb-2">Device Controller</h1>
+        <p id="deviceType" class="text-sm text-gray-500 mb-4">Detecting device type...</p>
+
+        <!-- IP Address Input -->
+        <div class="mb-4">
+            <label for="ipAddressInput" class="block text-sm font-medium text-gray-700 mb-1 text-left">Target IP Address:</label>
+            <input type="text" id="ipAddressInput" name="ipAddressInput" class="ip-input" placeholder="e.g., 192.168.1.100">
+            <p id="ipSavedStatus" class="text-xs text-green-600 mt-1 h-4"></p>
+        </div>
+
+        <div id="controlsContainer" class="my-6">
+            <div class="grid grid-cols-3 gap-2 w-max mx-auto">
+                <div></div>
+                <button id="btnUp" class="control-button">↑</button>
+                <div></div>
+
+                <button id="btnLeft" class="control-button">←</button>
+                <div id="btnCenter" class="rounded-lg bg-gray-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrows-move" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"/>
+                    </svg>
+                </div>
+                <button id="btnRight" class="control-button">→</button>
+
+                <div></div>
+                <button id="btnDown" class="control-button">↓</button>
+                <div></div>
+            </div>
+        </div>
+
+        <p id="statusMessage" class="text-sm text-gray-600 h-6">Enter IP and press a direction.</p>
+    </div>
+
+    <script>
+        const IP_STORAGE_KEY = 'remoteControlTargetIP_localStorage'; // Key for localStorage
+
+        const btnUp = document.getElementById('btnUp');
+        const btnDown = document.getElementById('btnDown');
+        const btnLeft = document.getElementById('btnLeft');
+        const btnRight = document.getElementById('btnRight');
+        const statusMessage = document.getElementById('statusMessage');
+        const deviceTypeDisplay = document.getElementById('deviceType');
+        const ipAddressInput = document.getElementById('ipAddressInput');
+        const ipSavedStatus = document.getElementById('ipSavedStatus');
+
+        // State to prevent command spam if a key is held down
+        const keyActiveStates = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false
+        };
+
+        // --- IP Address Management (Local Storage) ---
+        function saveIPAddressToLocalStorage(ip) {
+            if (!ip) {
+                // Don't save an empty IP, but clear the status
+                ipSavedStatus.textContent = "";
+                localStorage.removeItem(IP_STORAGE_KEY); // Remove if input is cleared
+                return;
+            }
+            try {
+                localStorage.setItem(IP_STORAGE_KEY, ip);
+                ipSavedStatus.textContent = "IP Saved locally!";
+                ipSavedStatus.className = "text-xs text-green-600 mt-1 h-4";
+                setTimeout(() => ipSavedStatus.textContent = "", 2000);
+            } catch (error) {
+                console.error("Error saving IP to Local Storage:", error);
+                ipSavedStatus.textContent = "Error saving IP.";
+                ipSavedStatus.className = "text-xs text-red-500 mt-1 h-4";
+            }
+        }
+
+        function loadIPAddressFromLocalStorage() {
+            try {
+                const savedIP = localStorage.getItem(IP_STORAGE_KEY);
+                if (savedIP) {
+                    ipAddressInput.value = savedIP;
+                    console.log("IP loaded from Local Storage:", savedIP);
+                } else {
+                    console.log("No IP address found in Local Storage.");
+                }
+            } catch (error) {
+                console.error("Error loading IP from Local Storage:", error);
+                ipSavedStatus.textContent = "Error loading IP.";
+                ipSavedStatus.className = "text-xs text-red-500 mt-1 h-4";
+            }
+        }
+
+        ipAddressInput.addEventListener('input', (event) => { // Use 'input' for more responsive saving
+            const newIP = event.target.value.trim();
+            saveIPAddressToLocalStorage(newIP);
+        });
+
+
+        // --- Device Detection ---
+        function isMobileDevice() {
+            // Standard check for mobile user agents
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        function updateDeviceStatus() {
+            if (isMobileDevice()) {
+                deviceTypeDisplay.textContent = "Device: Mobile";
+            } else {
+                deviceTypeDisplay.textContent = "Device: Desktop (Arrow keys enabled)";
+            }
+        }
+
+        // --- Command Sending ---
+        async function sendCommand(action) {
+            const currentIP = ipAddressInput.value.trim();
+            if (!currentIP) {
+                statusMessage.textContent = "Error: IP Address is not set.";
+                statusMessage.className = "text-sm text-red-500 h-6";
+                return;
+            }
+
+            const url = `http://${currentIP}/${action}`;
+            statusMessage.textContent = `Sending: ${action}...`;
+            statusMessage.className = "text-sm text-blue-500 h-6";
+
+            try {
+                // Using 'no-cors' as the device might not send CORS headers.
+                // This means we can't read the response body, but the request will be sent.
+                await fetch(url, { method: 'GET', mode: 'no-cors' });
+                statusMessage.textContent = `Sent: ${action}`;
+                statusMessage.className = "text-sm text-green-500 h-6";
+                console.log(`Command ${action} sent to ${url}`);
+            } catch (error) {
+                statusMessage.textContent = `Error: ${action} failed. Check IP & console.`;
+                statusMessage.className = "text-sm text-red-500 h-6";
+                console.error(`Error sending command ${action} to ${url}:`, error);
+            }
+        }
+
+        function stopMotor() {
+            sendCommand('stopMotor');
+        }
+
+        // --- Button Event Handlers ---
+        function setupButtonEvents(button, command) {
+            // Mouse events
+            button.addEventListener('mousedown', () => {
+                sendCommand(command);
+                button.classList.add('control-button-active');
+            });
+            button.addEventListener('mouseup', () => {
+                stopMotor();
+                button.classList.remove('control-button-active');
+            });
+            button.addEventListener('mouseleave', () => { // Stop if mouse leaves button while pressed
+                 if (button.classList.contains('control-button-active')) {
+                    stopMotor();
+                    button.classList.remove('control-button-active');
+                }
+            });
+
+            // Touch events
+            button.addEventListener('touchstart', (event) => {
+                event.preventDefault(); // Prevent scrolling/zooming, and also click event firing after touch
+                sendCommand(command);
+                button.classList.add('control-button-active');
+            });
+            button.addEventListener('touchend', (event) => {
+                event.preventDefault();
+                stopMotor();
+                button.classList.remove('control-button-active');
+            });
+        }
+
+        setupButtonEvents(btnUp, 'goForward');
+        setupButtonEvents(btnDown, 'goBackward');
+        setupButtonEvents(btnLeft, 'turnLeft');
+        setupButtonEvents(btnRight, 'turnRight');
+
+        // --- Keyboard Event Handlers (for Desktop) ---
+        if (!isMobileDevice()) {
+            document.addEventListener('keydown', (event) => {
+                let commandToSend = null;
+                let key = event.key;
+                let buttonToActivate = null;
+
+                // Prevent handling if input field is focused
+                if (document.activeElement === ipAddressInput) {
+                    return;
+                }
+
+                if (key === 'ArrowUp' && !keyActiveStates.ArrowUp) {
+                    commandToSend = 'goForward';
+                    keyActiveStates.ArrowUp = true;
+                    buttonToActivate = btnUp;
+                } else if (key === 'ArrowDown' && !keyActiveStates.ArrowDown) {
+                    commandToSend = 'goBackward';
+                    keyActiveStates.ArrowDown = true;
+                    buttonToActivate = btnDown;
+                } else if (key === 'ArrowLeft' && !keyActiveStates.ArrowLeft) {
+                    commandToSend = 'turnLeft';
+                    keyActiveStates.ArrowLeft = true;
+                    buttonToActivate = btnLeft;
+                } else if (key === 'ArrowRight' && !keyActiveStates.ArrowRight) {
+                    commandToSend = 'turnRight';
+                    keyActiveStates.ArrowRight = true;
+                    buttonToActivate = btnRight;
+                }
+
+                if (commandToSend) {
+                    sendCommand(commandToSend);
+                    if(buttonToActivate) buttonToActivate.classList.add('control-button-active');
+                    event.preventDefault(); // Prevent page scrolling
+                }
+            });
+
+            document.addEventListener('keyup', (event) => {
+                let key = event.key;
+                let needsStop = false;
+                let buttonToDeactivate = null;
+
+                // Prevent handling if input field is focused
+                if (document.activeElement === ipAddressInput) {
+                    return;
+                }
+
+                if (key === 'ArrowUp') {
+                    keyActiveStates.ArrowUp = false;
+                    needsStop = true;
+                    buttonToDeactivate = btnUp;
+                } else if (key === 'ArrowDown') {
+                    keyActiveStates.ArrowDown = false;
+                    needsStop = true;
+                    buttonToDeactivate = btnDown;
+                } else if (key === 'ArrowLeft') {
+                    keyActiveStates.ArrowLeft = false;
+                    needsStop = true;
+                    buttonToDeactivate = btnLeft;
+                } else if (key === 'ArrowRight') {
+                    keyActiveStates.ArrowRight = false;
+                    needsStop = true;
+                    buttonToDeactivate = btnRight;
+                }
+
+                if (needsStop) {
+                    stopMotor();
+                    if(buttonToDeactivate) buttonToDeactivate.classList.remove('control-button-active');
+                    event.preventDefault();
+                }
+            });
+        }
+
+        // --- Initial Setup ---
+        function main() {
+            updateDeviceStatus();
+            loadIPAddressFromLocalStorage(); // Load IP when the page loads
+        }
+
+        main(); // Run the main setup function
+
+    </script>
+</body>
+</html>
