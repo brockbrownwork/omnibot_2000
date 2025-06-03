@@ -18,12 +18,13 @@ const char *password = "godfrommachine";
 NetworkServer server(80);
 
 // Define your motor control pins here
-const int LEFT_MOTOR_FORWARD_PIN = 13;
-const int LEFT_MOTOR_BACKWARD_PIN = 12;
-const int RIGHT_MOTOR_FORWARD_PIN = 27;
-const int RIGHT_MOTOR_BACKWARD_PIN = 26;
-const int LEFT_MOTOR_PWM_PIN = 28;
-const int RIGHT_MOTOR_PWM_PIN = 29;
+
+const int LEFT_MOTOR_PWM_PIN = 14;
+const int LEFT_MOTOR_BACKWARD_PIN = 27;
+const int LEFT_MOTOR_FORWARD_PIN = 26;
+const int RIGHT_MOTOR_FORWARD_PIN = 25;
+const int RIGHT_MOTOR_BACKWARD_PIN = 33;
+const int RIGHT_MOTOR_PWM_PIN = 32;
 
 // PWM settings
 const int freq = 5000; // PWM frequency in Hz (e.g., 5 kHz)
@@ -37,7 +38,7 @@ const int rightMotorChannel = 1;
 int motorSpeed = 255;
 
 // passive buzzer
-const int BUZZER_PIN = 22;
+const int BUZZER_PIN = 23;
 
 // Function to change the motor speed
 void changeMotorSpeed(int speed) {
