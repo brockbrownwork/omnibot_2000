@@ -1,11 +1,11 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from PIL import Image
+from PIL import Image, ImageDraw
+from IPython.display import Image, display
 
 model = AutoModelForCausalLM.from_pretrained(
     "vikhyatk/moondream2",
     revision="2025-04-14",
     trust_remote_code=True,
-    # Uncomment to run on GPU.
     device_map={"": "cuda"}
 )
 
@@ -31,15 +31,21 @@ objects = model.detect(image, "face")["objects"]
 print(f"Found {len(objects)} face(s)")
 
 # Pointing
-print("\nPointing: 'person'")
-points = model.point(image, "person")["points"]
-print(f"Found {len(points)} person(s)")
+thing_to_find = "person holding a cup of coffee"
+print(f"\nPointing: '{thing_to_find}'")
+points = model.point(image, thing_to_find)["points"]
+print(f"Found {len(points)} {thing_to_find}(s)")
 
 # create the image with the points on them
 
 # draw the points on the image
 for point in points:
-    image.putpixel((point[0], point[1]), (255, 0, 0))
+    # point.x and point.y are normalized between 0 and 1, so we need to convert them to the image size
+    x = int(point['x'] * image.width)
+    y = int(point['y'] * image.height)
+    # Draw a large green circle at the point
+    draw = ImageDraw.Draw(image)
+    draw.ellipse((x-10, y-10, x+10, y+10), fill=(0, 255, 0), outline=(0, 255, 0))
 
 # show the image
 image.show()
