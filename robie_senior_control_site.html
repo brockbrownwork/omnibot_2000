@@ -3,67 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Device Remote Control</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Device Remote Control - 90s Edition</title>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: Arial, Helvetica, sans-serif; /* Common 90s system font */
+            background-color: #FFFFE0; /* Faded yellow */
+            color: #000000; /* Standard black text */
+            margin: 0;
+            padding: 20px;
             overscroll-behavior: none; /* Prevents pull-to-refresh on mobile */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align container to the top */
+            min-height: calc(100vh - 40px); /* Ensure body takes height for centering */
         }
-        .control-button {
-            @apply w-20 h-20 sm:w-24 sm:h-24 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-bold rounded-lg shadow-md flex items-center justify-center text-lg transition-all select-none;
-            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+
+        .main-container {
+            width: 450px;
+            margin-top: 20px; /* Space from top */
+            padding: 20px;
+            background-color: #C0C0C0; /* Classic silver/grey UI background */
+            border: 2px outset #888888;
+            box-shadow: 4px 4px 0px #777777; /* Simple, hard shadow for 3D effect */
+            text-align: center;
         }
-        .control-button-active {
-            @apply bg-blue-700 scale-95;
+
+        h1 {
+            font-family: 'Times New Roman', Times, serif; /* Classic header font */
+            font-size: 28px;
+            font-weight: bold;
+            color: #000080; /* Navy blue */
+            margin-bottom: 10px;
+            margin-top: 0;
         }
-        #btnCenter {
-            @apply w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center text-gray-400;
+
+        #deviceType {
+            font-size: 12px;
+            color: #2F4F4F; /* DarkSlateGray */
+            margin-bottom: 20px;
         }
-        /* Custom styles for input field */
+
+        .ip-input-container {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .ip-label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 5px;
+        }
+
         .ip-input {
-            @apply w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm;
+            width: calc(100% - 12px); /* Full width minus padding/border */
+            padding: 5px;
+            border: 1px solid #000000;
+            background-color: #FFFFFF;
+            font-size: 14px;
+            font-family: Arial, Helvetica, sans-serif;
         }
+
+        #ipSavedStatus {
+            font-size: 11px;
+            height: 16px;
+            margin-top: 4px;
+            text-align: left;
+        }
+
+        #controlsContainer {
+            margin: 25px 0;
+        }
+
+        .control-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 65px); /* Button size */
+            grid-template-rows: repeat(3, 65px);    /* Button size */
+            gap: 10px; /* Space between buttons */
+            width: calc((65px * 3) + (10px * 2)); /* Total width of the pad */
+            margin: 0 auto; /* Center the pad */
+            justify-items: center; /* Center items in grid cells */
+            align-items: center;   /* Center items in grid cells */
+        }
+
+        .control-button {
+            width: 65px;
+            height: 65px;
+            background-color: #C0C0C0; /* Silver */
+            color: #000000;
+            /* Classic 3D button borders */
+            border-top: 2px solid #E0E0E0;
+            border-left: 2px solid #E0E0E0;
+            border-right: 2px solid #555555;
+            border-bottom: 2px solid #555555;
+            font-size: 28px; /* Larger arrows */
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+            transition: none; /* No smooth transitions for 90s feel */
+        }
+
+        .control-button:active, .control-button-active { /* JS adds control-button-active */
+            background-color: #B0B0B0; /* Slightly darker silver */
+            /* Inset border effect for pressed state */
+            border-top: 2px solid #555555;
+            border-left: 2px solid #555555;
+            border-right: 2px solid #E0E0E0;
+            border-bottom: 2px solid #E0E0E0;
+        }
+        
+        .control-pad > div:not([id]):not([class*="button"]) {
+            width: 65px;
+            height: 65px;
+        }
+
+
+        #btnCenter {
+            width: 65px;
+            height: 65px;
+            background-color: #A9A9A9; /* Darker grey for the static center piece */
+            border: 1px solid #707070;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111111; /* SVG color */
+        }
+
+        #btnCenter svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        #statusMessage { 
+            font-size: 13px;
+            color: #333333; 
+            height: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .status-success { color: #006400; }
+        .status-error   { color: #8B0000; }
+        .status-info    { color: #00008B; }
+
     </style>
 </head>
-<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4 text-gray-800">
+<body>
 
-    <div class="w-full max-w-md p-6 bg-white rounded-xl shadow-xl text-center">
-        <h1 class="text-2xl sm:text-3xl font-bold mb-2">Device Controller</h1>
-        <p id="deviceType" class="text-sm text-gray-500 mb-4">Detecting device type...</p>
+    <div class="main-container">
+        <h1>Device Controller 90s</h1>
+        <p id="deviceType">Detecting device type...</p>
 
-        <!-- IP Address Input -->
-        <div class="mb-4">
-            <label for="ipAddressInput" class="block text-sm font-medium text-gray-700 mb-1 text-left">Target IP Address:</label>
+        <div class="ip-input-container">
+            <label for="ipAddressInput" class="ip-label">Target IP Address:</label>
             <input type="text" id="ipAddressInput" name="ipAddressInput" class="ip-input" placeholder="e.g., 192.168.1.100">
-            <p id="ipSavedStatus" class="text-xs text-green-600 mt-1 h-4"></p>
+            <p id="ipSavedStatus" class=""></p>
         </div>
 
-        <div id="controlsContainer" class="my-6">
-            <div class="grid grid-cols-3 gap-2 w-max mx-auto">
-                <div></div>
+        <div id="controlsContainer">
+            <div class="control-pad">
+                <div></div> 
                 <button id="btnUp" class="control-button">↑</button>
-                <div></div>
+                <div></div> 
 
                 <button id="btnLeft" class="control-button">←</button>
-                <div id="btnCenter" class="rounded-lg bg-gray-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrows-move" viewBox="0 0 16 16">
+                <div id="btnCenter">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"/>
                     </svg>
                 </div>
                 <button id="btnRight" class="control-button">→</button>
 
-                <div></div>
+                <div></div> 
                 <button id="btnDown" class="control-button">↓</button>
-                <div></div>
+                <div></div> 
             </div>
         </div>
 
-        <p id="statusMessage" class="text-sm text-gray-600 h-6">Enter IP and press a direction.</p>
+        <p id="statusMessage">Enter IP and press a direction.</p>
     </div>
 
     <script>
-        const IP_STORAGE_KEY = 'remoteControlTargetIP_localStorage'; // Key for localStorage
+        const IP_STORAGE_KEY = 'remoteControlTargetIP_localStorage_90s';
 
         const btnUp = document.getElementById('btnUp');
         const btnDown = document.getElementById('btnDown');
@@ -74,31 +200,30 @@
         const ipAddressInput = document.getElementById('ipAddressInput');
         const ipSavedStatus = document.getElementById('ipSavedStatus');
 
-        // State to prevent command spam if a key is held down
+        // Global state for key presses (tracks if a key is physically down to avoid re-processing key repeats for stack logic)
         const keyActiveStates = {
-            ArrowUp: false,
-            ArrowDown: false,
-            ArrowLeft: false,
-            ArrowRight: false
+            ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false
         };
 
-        // --- IP Address Management (Local Storage) ---
         function saveIPAddressToLocalStorage(ip) {
             if (!ip) {
-                // Don't save an empty IP, but clear the status
                 ipSavedStatus.textContent = "";
-                localStorage.removeItem(IP_STORAGE_KEY); // Remove if input is cleared
+                ipSavedStatus.className = ""; 
+                localStorage.removeItem(IP_STORAGE_KEY);
                 return;
             }
             try {
                 localStorage.setItem(IP_STORAGE_KEY, ip);
                 ipSavedStatus.textContent = "IP Saved locally!";
-                ipSavedStatus.className = "text-xs text-green-600 mt-1 h-4";
-                setTimeout(() => ipSavedStatus.textContent = "", 2000);
+                ipSavedStatus.className = "status-success"; 
+                setTimeout(() => {
+                    ipSavedStatus.textContent = "";
+                    ipSavedStatus.className = "";
+                }, 2000);
             } catch (error) {
                 console.error("Error saving IP to Local Storage:", error);
                 ipSavedStatus.textContent = "Error saving IP.";
-                ipSavedStatus.className = "text-xs text-red-500 mt-1 h-4";
+                ipSavedStatus.className = "status-error"; 
             }
         }
 
@@ -114,19 +239,16 @@
             } catch (error) {
                 console.error("Error loading IP from Local Storage:", error);
                 ipSavedStatus.textContent = "Error loading IP.";
-                ipSavedStatus.className = "text-xs text-red-500 mt-1 h-4";
+                ipSavedStatus.className = "status-error"; 
             }
         }
 
-        ipAddressInput.addEventListener('input', (event) => { // Use 'input' for more responsive saving
+        ipAddressInput.addEventListener('input', (event) => {
             const newIP = event.target.value.trim();
             saveIPAddressToLocalStorage(newIP);
         });
 
-
-        // --- Device Detection ---
         function isMobileDevice() {
-            // Standard check for mobile user agents
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
 
@@ -138,29 +260,34 @@
             }
         }
 
-        // --- Command Sending ---
         async function sendCommand(action) {
             const currentIP = ipAddressInput.value.trim();
-            if (!currentIP) {
+            if (!currentIP && action !== 'stopMotor') { // Allow stopMotor even if IP is not set
                 statusMessage.textContent = "Error: IP Address is not set.";
-                statusMessage.className = "text-sm text-red-500 h-6";
+                statusMessage.className = "status-error"; 
                 return;
             }
+            // For stopMotor, we might not need an IP if it's a local stop, but here we assume it's always to the device
+            if (!currentIP && action === 'stopMotor'){
+                 console.log("Attempting to stop motor without IP, usually requires IP.");
+                 // statusMessage.textContent = "Stopping (No IP)"; // Or handle as error
+                 // statusMessage.className = "status-info";
+                 // return; // Or proceed if your device handles a parameterless stop
+            }
+
 
             const url = `http://${currentIP}/${action}`;
             statusMessage.textContent = `Sending: ${action}...`;
-            statusMessage.className = "text-sm text-blue-500 h-6";
+            statusMessage.className = "status-info"; 
 
             try {
-                // Using 'no-cors' as the device might not send CORS headers.
-                // This means we can't read the response body, but the request will be sent.
                 await fetch(url, { method: 'GET', mode: 'no-cors' });
                 statusMessage.textContent = `Sent: ${action}`;
-                statusMessage.className = "text-sm text-green-500 h-6";
+                statusMessage.className = "status-success"; 
                 console.log(`Command ${action} sent to ${url}`);
             } catch (error) {
-                statusMessage.textContent = `Error: ${action} failed. Check IP & console.`;
-                statusMessage.className = "text-sm text-red-500 h-6";
+                statusMessage.textContent = `Error: ${action} failed. Check IP.`;
+                statusMessage.className = "status-error"; 
                 console.error(`Error sending command ${action} to ${url}:`, error);
             }
         }
@@ -169,9 +296,7 @@
             sendCommand('stopMotor');
         }
 
-        // --- Button Event Handlers ---
         function setupButtonEvents(button, command) {
-            // Mouse events
             button.addEventListener('mousedown', () => {
                 sendCommand(command);
                 button.classList.add('control-button-active');
@@ -180,19 +305,18 @@
                 stopMotor();
                 button.classList.remove('control-button-active');
             });
-            button.addEventListener('mouseleave', () => { // Stop if mouse leaves button while pressed
-                 if (button.classList.contains('control-button-active')) {
+            button.addEventListener('mouseleave', () => {
+                if (button.classList.contains('control-button-active')) {
                     stopMotor();
                     button.classList.remove('control-button-active');
                 }
             });
 
-            // Touch events
             button.addEventListener('touchstart', (event) => {
-                event.preventDefault(); // Prevent scrolling/zooming, and also click event firing after touch
+                event.preventDefault();
                 sendCommand(command);
                 button.classList.add('control-button-active');
-            });
+            }, { passive: false }); 
             button.addEventListener('touchend', (event) => {
                 event.preventDefault();
                 stopMotor();
@@ -205,87 +329,92 @@
         setupButtonEvents(btnLeft, 'turnLeft');
         setupButtonEvents(btnRight, 'turnRight');
 
-        // --- Keyboard Event Handlers (for Desktop) ---
+        // --- Keyboard Event Handlers (for Desktop) with new logic ---
         if (!isMobileDevice()) {
+            // Stores the order of currently pressed keys (last element is the dominant command)
+            let activeCommandStack = []; 
+            
+            // Maps keyboard keys to commands and button elements
+            const keyCommandMap = {
+                ArrowUp: { command: 'goForward', button: btnUp },
+                ArrowDown: { command: 'goBackward', button: btnDown },
+                ArrowLeft: { command: 'turnLeft', button: btnLeft },
+                ArrowRight: { command: 'turnRight', button: btnRight }
+            };
+
             document.addEventListener('keydown', (event) => {
-                let commandToSend = null;
-                let key = event.key;
-                let buttonToActivate = null;
+                // Ignore if input field is focused
+                if (document.activeElement === ipAddressInput) return;
+                
+                const keyInfo = keyCommandMap[event.key];
+                // Ignore if not one of our designated arrow keys
+                if (!keyInfo) return; 
 
-                // Prevent handling if input field is focused
-                if (document.activeElement === ipAddressInput) {
-                    return;
+                // If key is already considered active (i.e., this is a key-repeat event, not an initial press),
+                // ignore it for stack manipulation and command sending to prevent redundant actions.
+                if (keyActiveStates[event.key]) {
+                    event.preventDefault(); // Still prevent default browser action (e.g., scrolling)
+                    return; 
                 }
+                keyActiveStates[event.key] = true; // Mark this key as currently active (pressed down)
 
-                if (key === 'ArrowUp' && !keyActiveStates.ArrowUp) {
-                    commandToSend = 'goForward';
-                    keyActiveStates.ArrowUp = true;
-                    buttonToActivate = btnUp;
-                } else if (key === 'ArrowDown' && !keyActiveStates.ArrowDown) {
-                    commandToSend = 'goBackward';
-                    keyActiveStates.ArrowDown = true;
-                    buttonToActivate = btnDown;
-                } else if (key === 'ArrowLeft' && !keyActiveStates.ArrowLeft) {
-                    commandToSend = 'turnLeft';
-                    keyActiveStates.ArrowLeft = true;
-                    buttonToActivate = btnLeft;
-                } else if (key === 'ArrowRight' && !keyActiveStates.ArrowRight) {
-                    commandToSend = 'turnRight';
-                    keyActiveStates.ArrowRight = true;
-                    buttonToActivate = btnRight;
-                }
+                // Remove the key from stack if it somehow exists (e.g., very rapid press-release-press),
+                // then add it to the end, making it the most recent (dominant) press.
+                activeCommandStack = activeCommandStack.filter(k => k !== event.key);
+                activeCommandStack.push(event.key);
 
-                if (commandToSend) {
-                    sendCommand(commandToSend);
-                    if(buttonToActivate) buttonToActivate.classList.add('control-button-active');
-                    event.preventDefault(); // Prevent page scrolling
-                }
+                // The command to send is from the key just pressed (which is now at the end of the stack)
+                const { command, button: currentButton } = keyInfo; 
+                sendCommand(command);
+
+                // Update button UI: Deactivate all, then activate the current one
+                Object.values(keyCommandMap).forEach(map => {
+                    if (map.button) map.button.classList.remove('control-button-active');
+                });
+                if (currentButton) currentButton.classList.add('control-button-active');
+
+                event.preventDefault(); // Prevent page scrolling
             });
 
             document.addEventListener('keyup', (event) => {
-                let key = event.key;
-                let needsStop = false;
-                let buttonToDeactivate = null;
+                // Ignore if input field is focused
+                if (document.activeElement === ipAddressInput) return;
 
-                // Prevent handling if input field is focused
-                if (document.activeElement === ipAddressInput) {
-                    return;
-                }
+                const keyInfo = keyCommandMap[event.key];
+                 // Ignore if not one of our designated arrow keys
+                if (!keyInfo) return;
 
-                if (key === 'ArrowUp') {
-                    keyActiveStates.ArrowUp = false;
-                    needsStop = true;
-                    buttonToDeactivate = btnUp;
-                } else if (key === 'ArrowDown') {
-                    keyActiveStates.ArrowDown = false;
-                    needsStop = true;
-                    buttonToDeactivate = btnDown;
-                } else if (key === 'ArrowLeft') {
-                    keyActiveStates.ArrowLeft = false;
-                    needsStop = true;
-                    buttonToDeactivate = btnLeft;
-                } else if (key === 'ArrowRight') {
-                    keyActiveStates.ArrowRight = false;
-                    needsStop = true;
-                    buttonToDeactivate = btnRight;
-                }
+                keyActiveStates[event.key] = false; // Mark this key as no longer active
 
-                if (needsStop) {
+                // Remove the released key from the stack
+                activeCommandStack = activeCommandStack.filter(k => k !== event.key);
+
+                // Deactivate all arrow-key buttons first
+                Object.values(keyCommandMap).forEach(map => {
+                    if (map.button) map.button.classList.remove('control-button-active');
+                });
+
+                if (activeCommandStack.length > 0) {
+                    // If there are other keys still "pressed" in our stack,
+                    // the last one in the stack is now the dominant command.
+                    const lastPressedKey = activeCommandStack[activeCommandStack.length - 1];
+                    const { command, button: newActiveButton } = keyCommandMap[lastPressedKey];
+                    sendCommand(command); // Send command for the new dominant key
+                    if (newActiveButton) newActiveButton.classList.add('control-button-active'); // Activate its button
+                } else {
+                    // No keys left in stack, send stop command
                     stopMotor();
-                    if(buttonToDeactivate) buttonToDeactivate.classList.remove('control-button-active');
-                    event.preventDefault();
                 }
+                event.preventDefault(); // Prevent page scrolling
             });
         }
 
-        // --- Initial Setup ---
         function main() {
             updateDeviceStatus();
-            loadIPAddressFromLocalStorage(); // Load IP when the page loads
+            loadIPAddressFromLocalStorage();
         }
 
-        main(); // Run the main setup function
-
+        main();
     </script>
 </body>
 </html>
