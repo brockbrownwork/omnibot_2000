@@ -150,13 +150,19 @@
         .status-success { color: #006400; }
         .status-error   { color: #8B0000; }
         .status-info    { color: #00008B; }
+        .fancy-red {
+        font-family: 'Brush Script MT', cursive; /* A common curly font */
+        color: red;
+  }
 
     </style>
 </head>
 <body>
 
     <div class="main-container">
-        <h1>Device Controller 90s</h1>
+        <h3 class="fancy-red">Welcome to...</h3>
+        <h1>i❤️myrobiesenior.net</h1>
+        <img src="robie senior transparent background.png" alt="Robie Senior" class="robie-senior-image", width = "100px">
         <p id="deviceType">Detecting device type...</p>
 
         <div class="ip-input-container">
@@ -281,7 +287,7 @@
             statusMessage.className = "status-info"; 
 
             try {
-                await fetch(url, { method: 'GET', mode: 'no-cors' });
+                await fetch(url, { method: 'GET', mode: 'no-cors', signal: AbortSignal.timeout(1000) });
                 statusMessage.textContent = `Sent: ${action}`;
                 statusMessage.className = "status-success"; 
                 console.log(`Command ${action} sent to ${url}`);
