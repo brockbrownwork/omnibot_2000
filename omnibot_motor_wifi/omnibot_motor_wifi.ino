@@ -27,12 +27,8 @@ const int RIGHT_MOTOR_BACKWARD_PIN = 33;
 const int RIGHT_MOTOR_PWM_PIN = 32;
 
 // PWM settings
-const int freq = 5000; // PWM frequency in Hz (e.g., 5 kHz)
+const int freq = 500; // PWM frequency in Hz (e.g., 5 kHz)
 const int resolution = 8; // PWM resolution (8-bit gives 0-255 range, like analogWrite)
-
-// LEDC channels
-const int leftMotorChannel = 0;
-const int rightMotorChannel = 1;
 
 // Motor speed
 int motorSpeed = 255;
@@ -43,8 +39,8 @@ const int BUZZER_PIN = 23;
 // Function to change the motor speed
 void changeMotorSpeed(int speed) {
   motorSpeed = speed;
-  ledcWrite(leftMotorChannel, speed);
-  ledcWrite(rightMotorChannel, speed);
+  ledcWrite(LEFT_MOTOR_PWM_PIN, speed);
+  ledcWrite(RIGHT_MOTOR_PWM_PIN, speed);
 }
 
 // Function to stop all motors
@@ -126,20 +122,17 @@ void setup() {
   pinMode(LEFT_MOTOR_PWM_PIN, OUTPUT);
   stopMotors();
 
-  // // Configure LEDC for left motor
-  // ledcAttach(LEFT_MOTOR_PWM_PIN, freq, resolution);
-  // ledcAttachChannel(LEFT_MOTOR_PWM_PIN, freq, resolution, leftMotorChannel);
+  // Configure LEDC for left motor
+  ledcAttach(LEFT_MOTOR_PWM_PIN, freq, resolution);
 
-  // // Configure LEDC for right motor
-  // ledcAttach(RIGHT_MOTOR_PWM_PIN, freq, resolution);
-  // ledcAttachChannel(RIGHT_MOTOR_PWM_PIN, freq, resolution, rightMotorChannel);
-
-  // // Set the duty cycle to 1
-  // changeMotorSpeed(255);
+  // Configure LEDC for right motor
+  ledcAttach(RIGHT_MOTOR_PWM_PIN, freq, resolution);
+  // Set the duty cycle to 1
+  changeMotorSpeed(255);
 
   // set the pwm pins to high for now until we figure out what's up with that
-  digitalWrite(LEFT_MOTOR_PWM_PIN, HIGH);
-  digitalWrite(RIGHT_MOTOR_PWM_PIN, HIGH);
+  // digitalWrite(LEFT_MOTOR_PWM_PIN, HIGH);
+  // digitalWrite(RIGHT_MOTOR_PWM_PIN, HIGH);
 
 }
 
