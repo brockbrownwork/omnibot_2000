@@ -1,43 +1,23 @@
 import pygame
 import serial
 import time
+import threading
+import requests
 
 arduino_port = 'COM9'  # **CHANGE THIS to your Arduino's serial port**
 baud_rate = 115200
+ip_address = "192.168.0.114"
 
-def send_command(ser, command):
-    """Sends a string command to the Arduino followed by a newline."""
-    ser.write((command + '\n').encode('utf-8'))
+def send_command(command):
+    """Sends a command to the ip address by going to ip_address/command using threading so we don't block the main thread"""
+    threading.Thread(target=send_command_thread, args=(command,)).start()
+
+def send_command_thread(command):
+    """Sends a command to the ip address by going to ip_address/command"""
+    url = f"http://{ip_address}/{command}"
+    response = requests.get(url)
     print(f"Sent command: {command}")
-
-def read_response(ser):
-    """Reads and returns a line (until newline) from the Arduino."""
-    # Wait a short time for data to arrive
-    time.sleep(0.1)
-    if ser.in_waiting > 0:
-        response = ser.readline().decode('utf-8').rstrip()
-        return response
-    return None
-
-
-try:
-    ser = serial.Serial(arduino_port, baud_rate, timeout=1)
-    time.sleep(2) # Wait for the Arduino to reset and for the serial port to open
-
-    # Wait for the Arduino to signal readiness
-    print("Waiting for Arduino...")
-    while True:
-        response = read_response(ser)
-        if response == "Arduino Ready":
-            print("Arduino is ready.")
-            break
-        elif response is not None:
-            print(f"Unexpected response during startup: {response}")
-        time.sleep(0.1)
-except serial.SerialException as e:
-    print(f"Serial error: {e}")
-except Exception as e:
-    print(f"An error occurred: {e}")
+    print(f"Response: {response.text}")
 
 # Initialize pygame
 pygame.init()
@@ -78,10 +58,6 @@ directional_button_pressed_before = {
 # Main loop to detect input
 try:
     while True:
-        response = read_response(ser)
-        if response and response != "None":
-            print("Response:")
-            print(response)
         for event in pygame.event.get():
             if event.type == pygame.JOYBUTTONDOWN:
                 if event.button in button_number_to_name:
@@ -89,7 +65,7 @@ try:
                     print(f"{button} pressed\n")
                     if button == "B":
                         # beep
-                        send_command(ser, "beep on")
+                        send_command("beep on")
                 else:
                     print(f"Button {event.button} pressed\n")
             elif event.type == pygame.JOYBUTTONUP:
@@ -98,7 +74,7 @@ try:
                     print(f"{button} released\n")
                     if button == "B":
                         # beep off
-                        send_command(ser, "beep off")
+                        send_command("beep off")
                 else:
                     print(f"Button {event.button} released\n")
             elif event.type == pygame.JOYAXISMOTION:
@@ -107,24 +83,24 @@ try:
                     button = axis_to_direction[event.axis]
                     if value == 1: # if the button is pressed...
                         print(f"{button} pressed\n")
-                        # send_command(ser, "on")
+                        # send_command("on")
                         if button == "UP":
-                            send_command(ser, "forward")
+                            send_command("moveForward")
                             # pass
                         elif button == "DOWN":
-                            send_command(ser, "backward")
+                            send_command("moveBackward")
                         elif button == "LEFT":
-                            send_command(ser, "left")
+                            send_command("turnLeft")
                         elif button == "RIGHT":
-                            send_command(ser, "right")
+                            send_command("turnRight")
                     elif value == -1: # if the button was released...
                         if not directional_button_pressed_before.get(button, False):
                             # ignore the first "button released" signal, it's false
                             directional_button_pressed_before[button] = True
                         else:
                             if button in ["UP", "DOWN", "LEFT", "RIGHT"]:
-                                send_command(ser, "stop") # Sending "off" for any directional button release
-                                # send_command(ser, "off")
+                                send_command("stopMotors") # Sending "off" for any directional button release
+                                # send_command("off")
                             print(f"{button} released\n")
                 else:
                     pass

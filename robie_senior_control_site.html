@@ -262,13 +262,13 @@
 
         async function sendCommand(action) {
             const currentIP = ipAddressInput.value.trim();
-            if (!currentIP && action !== 'stopMotor') { // Allow stopMotor even if IP is not set
+            if (!currentIP && action !== 'stopMotors') { // Allow stopMotors even if IP is not set
                 statusMessage.textContent = "Error: IP Address is not set.";
                 statusMessage.className = "status-error"; 
                 return;
             }
-            // For stopMotor, we might not need an IP if it's a local stop, but here we assume it's always to the device
-            if (!currentIP && action === 'stopMotor'){
+            // For stopMotors, we might not need an IP if it's a local stop, but here we assume it's always to the device
+            if (!currentIP && action === 'stopMotors'){
                  console.log("Attempting to stop motor without IP, usually requires IP.");
                  // statusMessage.textContent = "Stopping (No IP)"; // Or handle as error
                  // statusMessage.className = "status-info";
@@ -292,8 +292,8 @@
             }
         }
 
-        function stopMotor() {
-            sendCommand('stopMotor');
+        function stopMotors() {
+            sendCommand('stopMotors');
         }
 
         function setupButtonEvents(button, command) {
@@ -302,12 +302,12 @@
                 button.classList.add('control-button-active');
             });
             button.addEventListener('mouseup', () => {
-                stopMotor();
+                stopMotors();
                 button.classList.remove('control-button-active');
             });
             button.addEventListener('mouseleave', () => {
                 if (button.classList.contains('control-button-active')) {
-                    stopMotor();
+                    stopMotors();
                     button.classList.remove('control-button-active');
                 }
             });
@@ -319,13 +319,13 @@
             }, { passive: false }); 
             button.addEventListener('touchend', (event) => {
                 event.preventDefault();
-                stopMotor();
+                stopMotors();
                 button.classList.remove('control-button-active');
             });
         }
 
-        setupButtonEvents(btnUp, 'goForward');
-        setupButtonEvents(btnDown, 'goBackward');
+        setupButtonEvents(btnUp, 'moveForward');
+        setupButtonEvents(btnDown, 'moveBackward');
         setupButtonEvents(btnLeft, 'turnLeft');
         setupButtonEvents(btnRight, 'turnRight');
 
@@ -336,8 +336,8 @@
             
             // Maps keyboard keys to commands and button elements
             const keyCommandMap = {
-                ArrowUp: { command: 'goForward', button: btnUp },
-                ArrowDown: { command: 'goBackward', button: btnDown },
+                ArrowUp: { command: 'moveForward', button: btnUp },
+                ArrowDown: { command: 'moveBackward', button: btnDown },
                 ArrowLeft: { command: 'turnLeft', button: btnLeft },
                 ArrowRight: { command: 'turnRight', button: btnRight }
             };
@@ -403,7 +403,7 @@
                     if (newActiveButton) newActiveButton.classList.add('control-button-active'); // Activate its button
                 } else {
                     // No keys left in stack, send stop command
-                    stopMotor();
+                    stopMotors();
                 }
                 event.preventDefault(); // Prevent page scrolling
             });
