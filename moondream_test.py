@@ -1,6 +1,6 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from PIL import Image, ImageDraw
-from IPython.display import Image, display
+
 
 model = AutoModelForCausalLM.from_pretrained(
     "vikhyatk/moondream2",

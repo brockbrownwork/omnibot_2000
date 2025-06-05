@@ -34,7 +34,7 @@ const int resolution = 8; // PWM resolution (8-bit gives 0-255 range, like analo
 int motorSpeed = 255;
 
 // passive buzzer
-const int BUZZER_PIN = 23;
+const int BUZZER_PIN = 34;
 
 // Function to change the motor speed
 void changeMotorSpeed(int speed) {
@@ -83,6 +83,15 @@ void turnLeft() {
   stopMotors(); // Stop any previous movement
   digitalWrite(LEFT_MOTOR_BACKWARD_PIN, HIGH);
   digitalWrite(RIGHT_MOTOR_FORWARD_PIN, HIGH);
+}
+
+void soundTone(frequency, seconds) {
+  ledcAttach(BUZZER_PIN, frequency, resolution);
+  ledcWrite(BUZZER_PIN, frequency);
+}
+
+void stopTone() {
+  ledcWrite(BUZZER_PIN, 0);
 }
 
 void setup() {
