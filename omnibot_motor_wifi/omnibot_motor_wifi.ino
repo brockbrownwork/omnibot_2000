@@ -153,17 +153,17 @@ void loop() {
           if (currentLine.length() == 0) {
             // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
             // and a content-type so the client knows what's coming, then a blank line:
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-type:text/html");
-            client.println();
+            // client.println("HTTP/1.1 200 OK");
+            // client.println("Content-type:text/html");
+            // client.println();
 
-            client.print("<center>");
-            client.print("  <p style=\"font-size: 15vw;\"><a href=\"/turnLeft\">LEFT</a></p>");
-            client.print("  <p style=\"font-size: 15vw;\"><a href=\"/turnRight\">RIGHT</a></p>");
-            client.print("  <p style=\"font-size: 15vw;\"><a href=\"/moveForward\">FORWARD</a></p>");
-            client.print("  <p style=\"font-size: 15vw;\"><a href=\"/moveBackward\">BACKWARD</a></p>");
-            client.print("  <p style=\"font-size: 15vw;\"><a href=\"/stopMotors\">STOP</a></p>");
-            client.print("</center>");
+            // client.print("<center>");
+            // client.print("  <p style=\"font-size: 15vw;\"><a href=\"/turnLeft\">LEFT</a></p>");
+            // client.print("  <p style=\"font-size: 15vw;\"><a href=\"/turnRight\">RIGHT</a></p>");
+            // client.print("  <p style=\"font-size: 15vw;\"><a href=\"/moveForward\">FORWARD</a></p>");
+            // client.print("  <p style=\"font-size: 15vw;\"><a href=\"/moveBackward\">BACKWARD</a></p>");
+            // client.print("  <p style=\"font-size: 15vw;\"><a href=\"/stopMotors\">STOP</a></p>");
+            // client.print("</center>");
 
             // The HTTP response ends with another blank line:
             client.println();
@@ -194,15 +194,20 @@ void loop() {
         }
         if (currentLine.indexOf("GET /speed/") != -1) {
           // This handles direct links like /speed/128
-          int speedIndex = currentLine.indexOf("/speed/");
+        int speedIndex = currentLine.indexOf("/speed/");
           String speedString = currentLine.substring(speedIndex + 7); // "/speed/" has 7 characters
           speedString = speedString.substring(0, speedString.indexOf(' ')); // Get the value before the next space
           int speed = speedString.toInt();
-          // Constrain speed to be between 0 and 255
-          speed = constrain(speed, 0, 255);
-          changeMotorSpeed(speed);
+
+          // 1. Constrain speed to be between 0 and 100 (for user input)
+          speed = constrain(speed, 0, 100);
+
+          // 2. Scale the speed from 0-100 to 90-255 for changeMotorSpeed function
+          int scaledSpeed = map(speed, 0, 100, 90, 255);
+
+          changeMotorSpeed(scaledSpeed); // Use the scaled speed here
           Serial.print("Setting motor speed to: ");
-          Serial.println(speed);
+          Serial.println(scaledSpeed); // Print the scaled speed for verification
         }
       }
     }
